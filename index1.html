@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscador de Usuarios One Piece</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ff9d00;
+      --secondary: #3498db;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px var(--shadow);
+      overflow: hidden;
+      padding-bottom: 20px;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary), #ff6b6b);
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+      border-bottom: 4px solid #ff6b6b;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .search-container {
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      margin: -10px 20px 20px;
+      position: relative;
+      box-shadow: 0 5px 15px var(--shadow);
+    }
+    
+    .search-box {
+      position: relative;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 12px 45px 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 157, 0, 0.2);
+      outline: none;
+    }
+    
+    .search-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 1.2rem;
+    }
+    
+    .add-user-section {
+      padding: 20px;
+      margin: 0 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px var(--shadow);
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      color: var(--dark);
+      font-size: 1.3rem;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+    
+    .input-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    @media (max-width: 600px) {
+      .input-row {
+        flex-direction: column;
+      }
+    }
+    
+    .input-group label {
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+    }
+    
+    .input-group input {
+      padding: 10px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      flex: 1;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      outline: none;
+    }
+    
+    .btn {
+      cursor: pointer;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 3px 5px var(--shadow);
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #ff8800;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .users-section {
+      padding: 0 20px;
+      margin-top: 30px;
+    }
+    
+    .user-card {
+      display: flex;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 10px var(--shadow);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border-left: 5px solid var(--primary);
+    }
+    
+    .user-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px var(--shadow);
+    }
+    
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      background-color: #dfe6e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 1.2rem;
+      color: var(--dark);
+      font-weight: bold;
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+      color: var(--dark);
+    }
+    
+    .user-description {
+      color: #7f8c8d;
+      font-size: 0.95rem;
+    }
+    
+    .empty-results {
+      text-align: center;
+      padding: 30px;
+      color: #95a5a6;
+      font-size: 1.1rem;
+    }
+    
+    .empty-results i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    .highlight {
+      background-color: rgba(255, 157, 0, 0.2);
+      padding: 2px 0;
+      border-radius: 3px;
+    }
+    
+    .counter {
+      background: var(--secondary);
+      color: white;
+      padding: 3px 10px;
+      font-size: 0.9rem;
+      border-radius: 20px;
+      margin-left: 10px;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-card {
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    .validation-message {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + ReactDOM desde CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tu código React aquí -->
+  <script type="text/babel">
+    function UserSearch() {
+        const [users, setUsers] = React.useState([
+  { nombre: "Jonathan Josue Zacarias Bances", descripcion: "Me gusta programar y jugar Halo" },
+  { nombre: "Master Chief", descripcion: "Spartan-II, símbolo de la humanidad en guerra" },
+  { nombre: "Cortana", descripcion: "IA avanzada que apoya a Master Chief" },
+  { nombre: "Arbiter", descripcion: "Guerrero Elite con un pasado complejo" },
+  { nombre: "Captain Keyes", descripcion: "Comandante respetado de la UNSC" }
+]);
+
+      const [search, setSearch] = React.useState("");
+      const [nuevoNombre, setNuevoNombre] = React.useState("");
+      const [nuevaDescripcion, setNuevaDescripcion] = React.useState("");
+      const [validationError, setValidationError] = React.useState("");
+
+      // useMemo para optimizar el filtrado de usuarios
+      const filteredUsers = React.useMemo(() => {
+        console.log("🔍 Filtrando usuarios...");
+        if (!search.trim()) return users;
+        
+        const searchLower = search.toLowerCase();
+        return users.filter(user =>
+          user.nombre.toLowerCase().includes(searchLower) ||
+          user.descripcion.toLowerCase().includes(searchLower)
+        );
+      }, [search, users]);
+
+      // Función para añadir un nuevo usuario
+      const handleAddUser = () => {
+        // Validación
+        if (!nuevoNombre.trim() || !nuevaDescripcion.trim()) {
+          setValidationError("Por favor completa ambos campos");
+          return;
+        }
+        
+        // Añadir usuario y limpiar campos
+        setUsers(prev => [
+          ...prev, 
+          { nombre: nuevoNombre.trim(), descripcion: nuevaDescripcion.trim() }
+        ]);
+        setNuevoNombre("");
+        setNuevaDescripcion("");
+        setValidationError("");
+      };
+
+      // Función para resaltar términos de búsqueda
+      const highlightText = (text, query) => {
+        if (!query.trim()) return text;
+        
+        const regex = new RegExp(`(${query.trim()})`, 'gi');
+        return text.split(regex).map((part, index) => 
+          regex.test(part) ? <span key={index} className="highlight">{part}</span> : part
+        );
+      };
+
+      // Obtener iniciales para el avatar
+      const getInitials = (name) => {
+        return name
+          .split(' ')
+          .slice(0, 2)
+          .map(word => word[0])
+          .join('')
+          .toUpperCase();
+      };
+
+      return (
+        <div className="container">
+          <div className="header">
+            <h1><i className="fas fa-pirate-flag"></i> Buscador de Usuarios One Piece</h1>
+            <p>Encuentra a tu nakama rápidamente</p>
+          </div>
+          
+          <div className="search-container">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Buscar por nombre o descripción..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Buscar usuarios"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+          </div>
+
+          <div className="add-user-section">
+            <h2 className="section-title">
+              <i className="fas fa-user-plus"></i> Añadir nuevo personaje
+            </h2>
+            
+            <div className="input-row">
+              <div className="input-group">
+                <label htmlFor="nombre">Nombre</label>
+                <input
+                  id="nombre"
+                  type="text"
+                  placeholder="Ej: Nami"
+                  value={nuevoNombre}
+                  onChange={(e) => setNuevoNombre(e.target.value)}
+                />
+              </div>
+              
+              <div className="input-group">
+                <label htmlFor="descripcion">Descripción</label>
+                <input
+                  id="descripcion"
+                  type="text"
+                  placeholder="Ej: Navegante experta"
+                  value={nuevaDescripcion}
+                  onChange={(e) => setNuevaDescripcion(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            {validationError && (
+              <div className="validation-message">
+                <i className="fas fa-exclamation-circle"></i> {validationError}
+              </div>
+            )}
+            
+            <button className="btn btn-primary" onClick={handleAddUser}>
+              <i className="fas fa-plus-circle"></i> Añadir
+            </button>
+          </div>
+
+          <div className="users-section">
+            <h2 className="section-title">
+              <i className="fas fa-users"></i> Personaje 
+              <span className="counter">{filteredUsers.length}</span>
+            </h2>
+            
+            {filteredUsers.length > 0 ? (
+              <div className="users-list">
+                {filteredUsers.map((user, index) => (
+                  <div className="user-card" key={index} style={{animationDelay: `${index * 0.05}s`}}>
+                    <div className="user-avatar">
+                      {getInitials(user.nombre)}
+                    </div>
+                    <div className="user-info">
+                      <div className="user-name">
+                        {highlightText(user.nombre, search)}
+                      </div>
+                      <div className="user-description">
+                        {highlightText(user.descripcion, search)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-results">
+                <i className="fas fa-search"></i>
+                <p>No hay tripulantes que coincidan con tu búsqueda</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<UserSearch />);
+  </script>
+</body>
+</html>

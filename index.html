@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cronómetro con React</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --accent: #e74c3c;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --light: #ecf0f1;
+      --dark: #34495e;
+      --gray: #95a5a6;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .stopwatch-container {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .timer-display {
+      margin: 20px 0;
+      font-size: 4rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+    
+    .timer-display:hover {
+      transform: scale(1.05);
+    }
+    
+    .timer-display small {
+      font-size: 1.8rem;
+      opacity: 0.8;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding: 0 20px 20px;
+    }
+    
+    .btn {
+      cursor: pointer;
+      padding: 12px 20px;
+      border-radius: 50px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: white;
+      flex: 1;
+      max-width: 160px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn i {
+      font-size: 1.1rem;
+    }
+    
+    .btn-start {
+      background: var(--success);
+    }
+    
+    .btn-start:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+    }
+    
+    .btn-pause {
+      background: var(--warning);
+    }
+    
+    .btn-pause:hover {
+      background: #e67e22;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(243, 156, 18, 0.3);
+    }
+    
+    .btn-reset {
+      background: var(--dark);
+    }
+    
+    .btn-reset:hover {
+      background: #2c3e50;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(52, 73, 94, 0.3);
+    }
+    
+    .btn-session {
+      background: var(--accent);
+    }
+    
+    .btn-session:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    .sessions-container {
+      padding: 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #eee;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .sessions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .sessions-header h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .sessions-count {
+      background: var(--primary);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .sessions-list {
+      list-style-type: none;
+    }
+    
+    .session-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background: white;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 5px var(--shadow);
+      transition: all 0.2s ease;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    .session-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 8px var(--shadow);
+    }
+    
+    .session-number {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .session-number .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--light);
+      border-radius: 50%;
+      color: var(--primary);
+    }
+    
+    .session-time {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+      font-weight: 500;
+      color: var(--dark);
+      background: #f0f0f0;
+      padding: 5px 12px;
+      border-radius: 5px;
+    }
+    
+    .no-sessions {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--gray);
+      font-size: 1rem;
+    }
+    
+    .no-sessions i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .timer-running {
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (max-width: 600px) {
+      .controls {
+        flex-wrap: wrap;
+      }
+      
+      .btn {
+        max-width: none;
+        flex: 1 0 calc(50% - 5px);
+      }
+      
+      .timer-display {
+        font-size: 3rem;
+      }
+      
+      .timer-display small {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + ReactDOM desde CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tu código React aquí -->
+  <script type="text/babel">
+    function Stopwatch() {
+      const [tiempo, setTiempo] = React.useState(0);
+      const [corriendo, setCorriendo] = React.useState(false);
+      const [sesiones, setSesiones] = React.useState([]);
+      const timerRef = React.useRef(null);
+
+      React.useEffect(() => {
+        if (corriendo) {
+          timerRef.current = setInterval(() => {
+            setTiempo(prev => prev + 1);
+          }, 1000);
+        } else {
+          clearInterval(timerRef.current);
+        }
+        return () => clearInterval(timerRef.current);
+      }, [corriendo]);
+
+      const formatTiempo = (segundos) => {
+        const horas = Math.floor(segundos / 3600);
+        const minutos = Math.floor((segundos % 3600) / 60);
+        const segs = segundos % 60;
+        
+        if (horas > 0) {
+          return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+        }
+        return `${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+      };
+
+      const formatTimerDisplay = (segundos) => {
+        const horas = Math.floor(segundos / 3600);
+        const minutos = Math.floor((segundos % 3600) / 60);
+        const segs = segundos % 60;
+        
+        if (horas > 0) {
+          return (
+            <>
+              {String(horas).padStart(2, '0')}:
+              {String(minutos).padStart(2, '0')}:
+              {String(segs).padStart(2, '0')}
+            </>
+          );
+        }
+        return (
+          <>
+            {String(minutos).padStart(2, '0')}:
+            {String(segs).padStart(2, '0')}
+          </>
+        );
+      };
+
+      const manejarGuardarSesion = () => {
+        if (tiempo > 0) {
+          setSesiones(prev => [...prev, tiempo]);
+        }
+      };
+
+      const manejarReiniciar = () => {
+        setTiempo(0);
+        setCorriendo(false);
+      };
+
+      const getTimeDifference = (index) => {
+        if (index === 0) return sesiones[0];
+        return sesiones[index] - sesiones[index - 1];
+      };
+
+      return (
+        <div className="stopwatch-container">
+          <div className="header">
+            <h1><i className="fas fa-stopwatch"></i> Cronómetro Profesional</h1>
+            <div className={`timer-display ${corriendo ? 'timer-running' : ''}`}>
+              {formatTimerDisplay(tiempo)}
+            </div>
+          </div>
+          
+          <div className="controls">
+            <button 
+              className={`btn ${corriendo ? 'btn-pause' : 'btn-start'}`}
+              onClick={() => setCorriendo(prev => !prev)}
+              aria-label={corriendo ? 'Pausar cronómetro' : 'Iniciar cronómetro'}
+            >
+              {corriendo ? (
+                <>
+                  <i className="fas fa-pause"></i> Pausar
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-play"></i> Iniciar
+                </>
+              )}
+            </button>
+            
+            <button 
+              className="btn btn-reset"
+              onClick={manejarReiniciar}
+              aria-label="Reiniciar cronómetro"
+            >
+              <i className="fas fa-undo"></i> Reiniciar
+            </button>
+            
+            <button 
+              className="btn btn-session"
+              onClick={manejarGuardarSesion}
+              aria-label="Guardar sesión actual"
+              disabled={tiempo === 0}
+            >
+              <i className="fas fa-bookmark"></i> Guardar
+            </button>
+          </div>
+          
+          <div className="sessions-container">
+            <div className="sessions-header">
+              <h2>
+                <i className="fas fa-history"></i> Sesiones Guardadas
+                {sesiones.length > 0 && (
+                  <span className="sessions-count">{sesiones.length}</span>
+                )}
+              </h2>
+            </div>
+            
+            {sesiones.length > 0 ? (
+              <ul className="sessions-list">
+                {sesiones.map((sesion, index) => (
+                  <li 
+                    key={index} 
+                    className="session-item"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div className="session-number">
+                      <span className="icon">
+                        <i className="fas fa-flag-checkered"></i>
+                      </span>
+                      Sesión #{index + 1}
+                    </div>
+                    <div className="session-time" title={`Diferencia: ${formatTiempo(getTimeDifference(index))}`}>
+                      {formatTiempo(sesion)}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="no-sessions">
+                <i className="fas fa-hourglass-half"></i>
+                <p>No hay sesiones guardadas aún</p>
+                <p>Guarda tu primera sesión para verla aquí</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Stopwatch />);
+  </script>
+</body>
+</html>
